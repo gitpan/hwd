@@ -47,6 +47,8 @@ sub parse {
         $comment = '';
     }
 
+    die "Invalid task: $task\n" unless ($task =~ /^\d+$/ || $task eq "^");
+
     my $self =
         $class->new( {
             who => $who,
@@ -140,7 +142,7 @@ Andy Lester, C<< <andy at petdance.com> >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2005 Andy Lester, all rights reserved.
+Copyright 2006 Andy Lester, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

@@ -21,11 +21,12 @@ WriteMakefile(
         'Pod::Usage' => 0,
         'Term::ReadKey' => 0,
         'Test::More' => 0,
+        'Test::Exception' => 0,
         'Text::CSV_XS' => 0,
     },
     MAN3PODS            => { }, # no need for docs on these
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'App-HWD-*' },
+    clean               => { FILES => 'hwd-* *.tmp' },
 );
 
 sub MY::postamble {

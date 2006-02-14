@@ -12,11 +12,11 @@ App::HWD - Support functions for How We Doin'?, the project estimation and track
 
 =head1 VERSION
 
-Version 0.14
+Version 0.16
 
 =cut
 
-our $VERSION = '0.14';
+our $VERSION = '0.16';
 
 =head1 SYNOPSIS
 
@@ -85,6 +85,14 @@ sub get_tasks_and_work {
         else {
             my $work = App::HWD::Work->parse( $line );
             push( @work, $work );
+            if ( $work->task eq "^" ) {
+                if ( $curr_task ) {
+                    $curr_task->add_work( $work );
+                }
+                else {
+                    push( @errors, "Can't apply work to current task, because there is no current task" );
+                }
+            }
         }
     } # while
 
@@ -96,6 +104,7 @@ sub get_tasks_and_work {
     }
 
     for my $work ( @work ) {
+        next if $work->task eq "^"; # Already handled inline
         my $task = $tasks_by_id{ $work->task };
         if ( !$task ) {
             push( @errors, "No task ID " . $work->task );
@@ -104,6 +113,7 @@ sub get_tasks_and_work {
         $task->add_work( $work );
     }
 
+    # Get the work done in date order for each of the tasks
     $_->sort_work() for @tasks;
 
     return( \@tasks, \@work, \%tasks_by_id, \@errors );
@@ -129,7 +139,7 @@ and Luke Closs for features and patches.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2005 Andy Lester, all rights reserved.
+Copyright 2006 Andy Lester, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

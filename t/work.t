@@ -1,9 +1,10 @@
-#!perl
+#!perl -Tw
 
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 26;
+use Test::Exception;
 
 BEGIN {
     use_ok( 'App::HWD::Work' );
@@ -49,4 +50,9 @@ COMPLETED: {
     cmp_ok( $work->hours, '==', .75, 'Hours match' );
     is( $work->comment, 'Refactoring', 'Non-empty comment' );
     ok( $work->completed, 'Completed' );
+}
+
+INVALID: {
+    my $str = 'Bob 2005-08-11    ? .75 X #       Refactoring   ';
+    throws_ok { App::HWD::Work->parse( $str ) } qr/Invalid task/;
 }

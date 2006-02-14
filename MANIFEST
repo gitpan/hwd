@@ -22,4 +22,5 @@ t/task-rollup-error.t
 t/task-structure-error.t
 t/task-subtasks.t
 t/work.t
+t/work-parents.t
 META.yml                                 Module meta-data (added by MakeMaker)

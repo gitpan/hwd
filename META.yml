@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         hwd
-version:      0.14
+version:      0.16
 version_from: HWD.pm
 installdirs:  site
 requires:
@@ -10,6 +10,7 @@ requires:
     Getopt::Long:                  0
     Pod::Usage:                    0
     Term::ReadKey:                 0
+    Test::Exception:               0
     Test::More:                    0
     Text::CSV_XS:                  0
 

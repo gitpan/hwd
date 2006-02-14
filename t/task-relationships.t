@@ -3,13 +3,15 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 BEGIN {
     use_ok( 'App::HWD' );
 }
 
-my ($tasks,$work,$tasks_by_id) = App::HWD::get_tasks_and_work( <DATA> );
+my ($tasks,$work,$tasks_by_id,$errors) = App::HWD::get_tasks_and_work( <DATA> );
+
+is( @$errors, 0, "No errors" );
 
 my $first = $tasks->[0];
 is( $first->name, 'Phase A', 'First task name' );

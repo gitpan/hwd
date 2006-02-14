@@ -1,5 +1,15 @@
 Revision history for App-HWD
 
+0.16    Mon Feb 13 18:55:49 CST 2006
+        [ENHANCEMENTS]
+        * Work on tasks may now refer to the most recent task with a
+          task number of "^".  This means you can do tracking without
+          having to have task numbers.
+
+        [DOCUMENTATION]
+        * Much more documentation on the file format.  See "hwd --man".
+
+
 0.14    Thu Feb  9 17:03:15 CST 2006
         * NO NEW FEATURES: Put out to get new package name in CPAN.
         * Removed use of Date::Manip

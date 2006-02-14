@@ -499,11 +499,11 @@ immediately preceding it.
 Any line that begins with a C<#> is a comment in the file, and is ignored
 during processing.
 
-=head2 WORK
+=head2 TRACKING WORK
 
-If you want to use F<hwd> as just a scheduling tool, that's fine.
-However, you can then put your work entries into the .hwd file and have
-hwd tell you how you're doing on the project.
+If you want to use F<hwd> as just an outliner/scheduler, that's fine.
+However, you can then put your work entries into the F<.hwd> file and
+have F<hwd> tell you how you're doing on the project.
 
 Work is recorded with work lines that follow this format:
 
@@ -514,6 +514,8 @@ spaces.  The optional C<X> tells whether the task was completed or not.
 
 Here are some examples.
 
+    --Do some stuff (#105)
+    --Do some other stuff (#253)
     Arlo    3/09    105     3
     Arlo    3/09    253     2 X
 
@@ -521,12 +523,38 @@ Arlo worked on March 9th on task 105 for 3 hours, and then on task 253
 for 2 hours, and completed it.  At this point, task 105 is open and 253
 is closed.
 
+Later, we find these work entries.
+
     Arlo    3/10    105     2 X
     Arlo    3/10    253     5
 
 Arlo finished up 105, but found bugs in task 253 and went back to work
 on it.  Now, task 105 is closed, and 253 has been re-opened because more
 work was done on it without having been completed.
+
+It's not necessary to have numbered tasks to use the work tracking.
+If you don't want to hassle with numbering, you can use the magic task
+number of C<^> (caret) to apply the work to the most recent task in
+the file.  For example, our previous examples could have been written as
+
+    --Do some stuff (#105)
+    Arlo    3/09    ^       3
+    Arlo    3/10    ^       2 X
+    --Do some other stuff (#253)
+    Arlo    3/09    ^       2 X
+    Arlo    3/10    ^       5
+
+Note that for unnumbered tasks, the relative order of the lines
+is important so that the work is applied to the appropriate tasks.
+For numbered tasks, tasks and work can appear in any order.  Also,
+you can combine numbered and unnumbered, so that you can have:
+
+    --Do some stuff (#105)
+    --Do some other stuff (#253)
+    Arlo    3/09    ^       2 X
+    Arlo    3/10    ^       5
+    Arlo    3/10    105     2 X
+    Arlo    3/09    ^       3
 
 =head1 TODO
 
