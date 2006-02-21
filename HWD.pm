@@ -12,11 +12,11 @@ App::HWD - Support functions for How We Doin'?, the project estimation and track
 
 =head1 VERSION
 
-Version 0.16
+Version 0.18
 
 =cut
 
-our $VERSION = '0.16';
+our $VERSION = '0.18';
 
 =head1 SYNOPSIS
 
@@ -36,6 +36,8 @@ Returns references to C<@tasks>, C<@work>, C<%tasks_by_id> and C<@errors>.
 =cut
 
 sub get_tasks_and_work {
+    my $handle = shift;
+
     my @tasks;
     my @work;
     my %tasks_by_id;
@@ -43,9 +45,25 @@ sub get_tasks_and_work {
 
     my @parents;
     my $curr_task;
-    my $lineno = 0;
-    for my $line ( @_ ) {
-        ++$lineno;
+    my $lineno;
+    my $currfile;
+    for my $line ( <$handle> ) {
+        if ( !defined($currfile) ) {
+            $currfile = defined $ARGV ? $ARGV : "DATA";
+            $lineno = 1;
+        }
+        elsif ( !defined( $ARGV ) ) {
+            ++$lineno;
+        }
+        elsif ( $currfile eq $ARGV ) {
+            ++$lineno;
+        }
+        else {
+            $currfile = $ARGV;
+            $lineno = 1;
+        }
+
+        my $where = "line $lineno of $currfile";
         chomp $line;
         next if $line =~ /^\s*#/;
         next if $line !~ /./;
@@ -56,18 +74,18 @@ sub get_tasks_and_work {
             if ( $level > 1 ) {
                 $parent = $parents[ $level - 1 ];
                 if ( !$parent ) {
-                    push( @errors, "Line $lineno has no parent: $line" );
+                    push( @errors, ucfirst( "$where has no parent: $line" ) );
                     next;
                 }
             }
-            my $task = App::HWD::Task->parse( $line, $parent );
+            my $task = App::HWD::Task->parse( $line, $parent, $where );
             if ( !$task ) {
-                push( @errors, "Can't parse line $lineno: $line" );
+                push( @errors, "Can't parse at $where: $line" );
                 next;
             }
             if ( $task->id ) {
                 if ( $tasks_by_id{ $task->id } ) {
-                    push( @errors, "Dupe task ID on line $lineno: Task " . $task->id );
+                    push( @errors, "Dupe task ID at $where: Task " . $task->id );
                     next;
                 }
                 $tasks_by_id{ $task->id } = $task;
@@ -99,7 +117,8 @@ sub get_tasks_and_work {
     # Validate the structure
     for my $task ( @tasks ) {
         if ( $task->estimate && $task->children ) {
-            push( @errors, sprintf( "Task %d cannot have estimates, because it has children", $task->id ) );
+            my $where = $task->id || ("at " . $task->where);
+            push( @errors, "Task $where cannot have estimates, because it has children" );
         }
     }
 

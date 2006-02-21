@@ -1,4 +1,18 @@
-Revision history for App-HWD
+Revision history for hwd
+
+0.18    Tue Feb 21 15:09:29 PST 2006
+        [ENHANCEMENTS]
+        * Better reporting of where errors are found.  Now tells the line
+          number and filename of the file where the error is found.
+
+        * Added new flags: --strict, --nostrict
+
+          By default, C<--strict> is on and hwd will not print output if
+          there are errors in the input.  You can use the C<--nostrict>
+          for when you're getting your first schedule pulled together
+          and don't mind the errors and the inaccuracies they cause,
+          in the name of seeing some output.
+
 
 0.16    Mon Feb 13 18:55:49 CST 2006
         [ENHANCEMENTS]

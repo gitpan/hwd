@@ -9,7 +9,7 @@ BEGIN {
     use_ok( 'App::HWD' );
 }
 
-my ($tasks,$work,$tasks_by_id,$errors) = App::HWD::get_tasks_and_work( <DATA> );
+my ($tasks,$work,$tasks_by_id,$errors) = App::HWD::get_tasks_and_work( *DATA );
 is( @$errors, 1 );
 like( $errors->[0], qr/Task 103.+cannot have estimates/ );
 

@@ -25,6 +25,7 @@ MAIN: {
     my $show_todo;
     my $csv;
     my $notes = 1;
+    my $strict = 1;
 
     Getopt::Long::Configure( "no_ignore_case" );
     Getopt::Long::Configure( "bundling" );
@@ -37,6 +38,7 @@ MAIN: {
         'wrap:i'        => \$wrap,
         'csv!'          => \$csv,
         'notes!'        => \$notes,
+        'strict!'       => \$strict,
         'h|help|?'      => sub { pod2usage({-verbose => 1}); exit; },
         'H|man'         => sub { pod2usage({-verbose => 2}); exit; },
         'V|version'     => sub { print_version(); exit; },
@@ -52,10 +54,10 @@ MAIN: {
         }
     }
 
-    my ($tasks,$works,$tasks_by_id,$errors) = App::HWD::get_tasks_and_work( <> );
+    my ($tasks,$works,$tasks_by_id,$errors) = App::HWD::get_tasks_and_work( *ARGV );
     if ( @$errors ) {
         print join( "\n", @$errors, "" );
-        die;
+        die if $strict;
     }
 
     if ( $show_nextid ) {
@@ -384,6 +386,8 @@ Options:
                     Default is 72, or terminal width if available.
         --csv       Output in CSV format
         --nonotes   Omit the notes from the output
+        --strict    Die on problems in the input file (default)
+        --nostrict  Print output even if there are non-fatal errors
 
     -h, --help      Display this help
     -H, --man       Longer manpage for prove
@@ -427,6 +431,13 @@ Print a "burn down" graph:
     2005/07/19      100     70
 
 That is, how fast is the amount of work left "burning down" to zero?
+
+=head2 --strict, --nostrict
+
+By default, C<--strict> is on and hwd will not print output if there
+are errors in the input.  You can use the C<--nostrict> for when you're
+getting your first schedule pulled together and don't mind the errors
+and the inaccuracies they cause, in the name of seeing some output.
 
 =head2 -V, --version
 

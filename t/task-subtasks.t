@@ -9,7 +9,7 @@ BEGIN {
     use_ok( 'App::HWD' );
 }
 
-my ($tasks,$work,$tasks_by_id,$errors) = App::HWD::get_tasks_and_work( <DATA> );
+my ($tasks,$work,$tasks_by_id,$errors) = App::HWD::get_tasks_and_work( *DATA );
 
 is( @$errors, 0, "No errors" );
 my $top = $tasks->[0];

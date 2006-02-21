@@ -23,18 +23,19 @@ use warnings;
 use strict;
 use DateTime::Format::Strptime;
 
+my $line_regex = qr/
+    ^
+    (-+)        # leading dashes
+    \s*         # whitespace
+    (.+)        # everything else
+    $
+/x;
+
 sub parse {
     my $class = shift;
     my $line = shift;
     my $parent = shift;
-
-    my $line_regex = qr/
-        ^
-        (-+)        # leading dashes
-        \s*         # whitespace
-        (.+)        # everything else
-        $
-    /x;
+    my $where = shift;
 
     if ( $line =~ $line_regex ) {
         my $level = length $1;
@@ -58,7 +59,7 @@ sub parse {
                     $date{$type} = $parser->parse_datetime($date);
                     next if $date{$type};
                 };
-                warn qq{I don't understand "$_"\n};
+                warn qq{Can't parse $where: $_\n};
             }
         }
 
@@ -66,6 +67,7 @@ sub parse {
             level               => $level,
             name                => $name,
             id                  => $id,
+            where               => $where,
             estimate            => $estimate,
             date_added_obj      => $date{added},
             date_deleted_obj    => $date{deleted},
@@ -115,6 +117,10 @@ Returns the name of the task
 
 Returns the ID of the task, or the empty string if there isn't one.
 
+=head2 $task->where()
+
+Returns a string describing the location of the task's line, as in "line 45 of foo.hwd"
+
 =head2 $task->estimate()
 
 Returns the estimate, or 0 if it's not set.
@@ -156,6 +162,7 @@ Returns the array of App::HWD::Work applied to the task.
 sub level               { return shift->{level} }
 sub name                { return shift->{name} }
 sub id                  { return shift->{id} || "" }
+sub where               { return shift->{where} }
 sub estimate            { return shift->{estimate} || 0 }
 sub work                { return @{shift->{work}||[]} }
 sub notes               { return @{shift->{notes}||[]} }
