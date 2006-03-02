@@ -1,5 +1,23 @@
 Revision history for hwd
 
+0.20    Wed Mar  1 20:30:52 CST 2006
+        [ENHANCEMENTS]
+        * Allows times for tasks and work to be expressed in minutes.
+          "2h" is the same as "120m".
+
+        * Added column headings to default output
+
+        * Task indent level may now be done with asterisks as well as
+          dashes, and the indent level may have whitespace following it.
+          The following are all valid:
+
+          -Level 1 the old way
+          --Level 2 the old way
+          --- Level 3 with whitespace
+          ***Level 3 the new way
+          ****  Level 4 the new way with whitespace
+          --**IMPORTANT** (Level 2, task name "**IMPORTANT**")
+
 0.18    Tue Feb 21 15:09:29 PST 2006
         [ENHANCEMENTS]
         * Better reporting of where errors are found.  Now tells the line

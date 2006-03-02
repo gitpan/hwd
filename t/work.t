@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 42;
 use Test::Exception;
 
 BEGIN {
@@ -51,6 +51,36 @@ COMPLETED: {
     is( $work->comment, 'Refactoring', 'Non-empty comment' );
     ok( $work->completed, 'Completed' );
 }
+
+EXPLICITLY_HOURS: {
+    my $str = 'Bob 2005-08-11    ^ 0.75h X #       Refactoring   ';
+    my $work = App::HWD::Work->parse( $str );
+    isa_ok( $work, 'App::HWD::Work' );
+
+    is( $work->who, 'Bob', 'Who' );
+    is( $work->when, '2005-08-11', 'When' );
+    isa_ok( $work->when_obj, 'DateTime', 'When' );
+    is( $work->task, '^', 'task number' );
+    cmp_ok( $work->hours, '==', .75, 'Hours match' );
+    is( $work->comment, 'Refactoring', 'Non-empty comment' );
+    ok( $work->completed, 'Completed' );
+}
+
+EXPLICITLY_MINUTES: {
+    my $str = 'Bob 2005-08-11    ^ 90m #       ';
+    my $work = App::HWD::Work->parse( $str );
+    isa_ok( $work, 'App::HWD::Work' );
+
+    is( $work->who, 'Bob', 'Who' );
+    is( $work->when, '2005-08-11', 'When' );
+    isa_ok( $work->when_obj, 'DateTime', 'When' );
+    is( $work->task, '^', 'task number' );
+    cmp_ok( $work->hours, '==', 1.5, 'Hours match' );
+    is( $work->comment, '', 'Empty comment' );
+    ok( !$work->completed, 'Not completed' );
+}
+
+
 
 INVALID: {
     my $str = 'Bob 2005-08-11    ? .75 X #       Refactoring   ';

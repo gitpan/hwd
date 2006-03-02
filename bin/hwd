@@ -120,6 +120,8 @@ sub show_full_dump {
     my %total;
     $total{$_} = 0 for @fields;
 
+    print "Task  Est.   Vel.  X Description\n";
+    print "----  ----   ----  - -----------\n";
     for my $task ( @$tasks ) {
         my $points = $task->estimate || 0;
         if ( $task->date_deleted ) {
@@ -487,8 +489,7 @@ tracking, you don't need one.  The task number must match C</^#\d+$/>.
 
 Estimated amount of actual work to be done on the task.  Rollup tasks,
 or tasks with subtasks, may not have time estimates on them.  Times must
-match C</^(\d+\.)?\d+h$/>.  This means they must always be
-in hours.
+match C</^(\d+\.)?\d+h$/> for hours, or C</^\d+m$> for minutes.
 
 =item * Date added
 
@@ -518,7 +519,7 @@ have F<hwd> tell you how you're doing on the project.
 
 Work is recorded with work lines that follow this format:
 
-    Who     Date    Task#   Hours X?
+    Who     Date    Task#   Time X?
 
 All fields are separated by whitespace, and the Who column cannot contain
 spaces.  The optional C<X> tells whether the task was completed or not.
@@ -527,12 +528,12 @@ Here are some examples.
 
     --Do some stuff (#105)
     --Do some other stuff (#253)
-    Arlo    3/09    105     3
-    Arlo    3/09    253     2 X
+    Arlo    3/09    105     3h
+    Arlo    3/09    253     15m X
 
 Arlo worked on March 9th on task 105 for 3 hours, and then on task 253
-for 2 hours, and completed it.  At this point, task 105 is open and 253
-is closed.
+for 15 minutes, and completed it.  At this point, task 105 is open and
+253 is closed.
 
 Later, we find these work entries.
 
@@ -541,7 +542,8 @@ Later, we find these work entries.
 
 Arlo finished up 105, but found bugs in task 253 and went back to work
 on it.  Now, task 105 is closed, and 253 has been re-opened because more
-work was done on it without having been completed.
+work was done on it without having been completed.  Note that without
+specifying "h" for hours or "m" for minutes, I<hwd> assumes hours.
 
 It's not necessary to have numbered tasks to use the work tracking.
 If you don't want to hassle with numbering, you can use the magic task
@@ -552,8 +554,8 @@ the file.  For example, our previous examples could have been written as
     Arlo    3/09    ^       3
     Arlo    3/10    ^       2 X
     --Do some other stuff (#253)
-    Arlo    3/09    ^       2 X
-    Arlo    3/10    ^       5
+    Arlo    3/09    ^       .25h X
+    Arlo    3/10    ^       5h
 
 Note that for unnumbered tasks, the relative order of the lines
 is important so that the work is applied to the appropriate tasks.
@@ -562,9 +564,9 @@ you can combine numbered and unnumbered, so that you can have:
 
     --Do some stuff (#105)
     --Do some other stuff (#253)
-    Arlo    3/09    ^       2 X
+    Arlo    3/09    105     2 X
     Arlo    3/10    ^       5
-    Arlo    3/10    105     2 X
+    Arlo    3/10    105     15m X
     Arlo    3/09    ^       3
 
 =head1 TODO

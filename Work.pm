@@ -46,6 +46,15 @@ sub parse {
     else {
         $comment = '';
     }
+    if ( $hours =~ s/h$// ) {
+        # nothing
+    }
+    elsif ( $hours =~ /^(\d+)m$/ ) {
+        $hours = $1/60;
+    }
+    elsif ( $hours != $hours+0 ) {
+        die "Invalid hours: $hours\n";
+    }
 
     die "Invalid task: $task\n" unless ($task =~ /^\d+$/ || $task eq "^");
 

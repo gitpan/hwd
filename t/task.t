@@ -1,9 +1,9 @@
-#!perl
+#!perl -T
 
 use strict;
 use warnings;
 
-use Test::More tests => 99;
+use Test::More tests => 100;
 
 BEGIN {
     use_ok( 'App::HWD::Task' );
@@ -62,7 +62,7 @@ WITH_ESTIMATE: {
 }
 
 WITH_ID_AND_ESTIMATE: {
-    my $str = '----Retrofitting widgets (#142, 3h)';
+    my $str = '****   Retrofitting widgets     (#142,3h)';
 
     my $task = App::HWD::Task->parse( $str );
     isa_ok( $task, 'App::HWD::Task' );
@@ -79,7 +79,7 @@ WITH_ID_AND_ESTIMATE: {
 }
 
 WITH_ESTIMATE_AND_ID: {
-    my $str = '-Flargling dangows (9h ,#2112)';
+    my $str = '-Flargling dangows (540m ,#2112)';
 
     my $task = App::HWD::Task->parse( $str );
     isa_ok( $task, 'App::HWD::Task' );
@@ -112,16 +112,16 @@ WITH_PARENS: {
 }
 
 WITH_ID_AND_ESTIMATE_AND_DATE: {
-    my $str = '----Retrofitting widgets (#142, 3h, added 2005-12-07)';
+    my $str = '----***IMPORTANT*** (#142, 3h, added 2005-12-07)';
     my $task = App::HWD::Task->parse( $str );
     isa_ok( $task, 'App::HWD::Task' );
-    is( $task->name, 'Retrofitting widgets' );
+    is( $task->name, '***IMPORTANT***' );
     is( $task->level, 4 );
     is( $task->estimate, 3 );
     is( $task->id, 142 );
     isa_ok( $task->date_added_obj, 'DateTime', 'Task date object' );
     is( $task->date_added, '2005-12-07', 'Task date string' );
-    is( $task->summary, '142 - Retrofitting widgets (3/0)', 'Summary' );
+    is( $task->summary, '142 - ***IMPORTANT*** (3/0)', 'Summary' );
     ok( !$task->completed, 'Not completed' );
     ok( !$task->started, 'Not started' );
     ok(  $task->is_todo );
@@ -143,11 +143,11 @@ WITH_FRACTIONAL_ESTIMATE: {
 }
 
 WITH_DELETION: {
-    my $str = '-Unnecessary task (14.5h, added 2005-11-07, deleted 2005-08-28, #2112)';
+    my $str = '**Unnecessary task (14.5h, added 2005-11-07, deleted 2005-08-28, #2112)';
     my $task = App::HWD::Task->parse( $str );
     isa_ok( $task, 'App::HWD::Task' );
     is( $task->name, 'Unnecessary task' );
-    is( $task->level, 1 );
+    is( $task->level, 2 );
     cmp_ok( $task->estimate, '==', 14.5 );
     is( $task->id, 2112 );
     is( $task->date_added, '2005-11-07', "Add date" );
@@ -156,4 +156,10 @@ WITH_DELETION: {
     ok( !$task->started, 'Not started' );
     ok( !$task->is_todo );
     ok( !$task->parent );
+}
+
+INVALID: {
+    my $str = 'Invalid';
+    my $task = App::HWD::Task->parse( $str );
+    ok( !defined( $task ), "Shouldn't parse" );
 }

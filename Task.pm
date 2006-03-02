@@ -25,7 +25,7 @@ use DateTime::Format::Strptime;
 
 my $line_regex = qr/
     ^
-    (-+)        # leading dashes
+    (-+|\*+)    # leading dashes or stars
     \s*         # whitespace
     (.+)        # everything else
     $
@@ -50,10 +50,18 @@ sub parse {
 
             my @subfields = split /,/, $parens;
             for ( @subfields ) {
+                # Strip whitespace
                 s/^\s+//;
                 s/\s+$//;
+
+                # ID?
                 /^#(\d+)$/ and $id = $1, next;
+
+                # Estimate in hours or minutes?
                 /^((\d*\.)?\d+)h$/  and $estimate = $1, next;
+                /^(\d+)m$/          and $estimate = $1/60, next;
+
+                # Add or delete dates
                 /^(added|deleted) (\S+)$/i and do {
                     my ($type,$date) = ($1,$2);
                     $date{$type} = $parser->parse_datetime($date);

@@ -12,11 +12,11 @@ App::HWD - Support functions for How We Doin'?, the project estimation and track
 
 =head1 VERSION
 
-Version 0.18
+Version 0.20
 
 =cut
 
-our $VERSION = '0.18';
+our $VERSION = '0.20';
 
 =head1 SYNOPSIS
 
