@@ -102,7 +102,9 @@ MAIN: {
     if ( $show_full_dump ) {
         show_full_dump( $tasks, $filter, $wrap, $csv, $notes );
         print "\n";
-        show_totals( $tasks );
+        show_totals_by_level1( $tasks );
+        print "\n";
+        show_totals_by_assignee( $tasks );
     }
 }
 
@@ -338,8 +340,26 @@ sub show_burndown {
     }
 }
 
-sub show_totals {
-    my ( $tasks, $works, $tasks_by_id ) = @_;
+sub show_totals_by_assignee {
+    my $tasks = shift;
+
+    my %who;
+
+    for my $task ( @$tasks ) {
+        my @assignees = $task->assignees;
+        @assignees = "Unassigned" unless @assignees;
+        for my $assignee ( @assignees ) {
+            $who{$assignee} += $task->estimate / scalar @assignees;
+        }
+    }
+
+    for my $assignee ( sort keys %who ) {
+        printf( "%4d %s\n", $who{$assignee}, $assignee );
+    }
+}
+
+sub show_totals_by_level1 {
+    my $tasks = shift;
 
     my @totals;
     my $curr_total;

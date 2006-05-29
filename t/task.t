@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 100;
+use Test::More tests => 119;
 
 BEGIN {
     use_ok( 'App::HWD::Task' );
@@ -25,6 +25,7 @@ SIMPLE: {
     ok( !$task->started, 'Not started' );
     ok( !$task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_ID: {
@@ -42,6 +43,7 @@ WITH_ID: {
     ok( !$task->started, 'Not started' );
     ok( !$task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_ESTIMATE: {
@@ -59,6 +61,7 @@ WITH_ESTIMATE: {
     ok( !$task->started, 'Not started' );
     ok(  $task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_ID_AND_ESTIMATE: {
@@ -76,6 +79,7 @@ WITH_ID_AND_ESTIMATE: {
     ok( !$task->started, 'Not started' );
     ok(  $task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_ESTIMATE_AND_ID: {
@@ -93,6 +97,7 @@ WITH_ESTIMATE_AND_ID: {
     ok( !$task->started, 'Not started' );
     ok(  $task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_PARENS: {
@@ -109,6 +114,7 @@ WITH_PARENS: {
     ok( !$task->started, 'Not started' );
     ok( !$task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_ID_AND_ESTIMATE_AND_DATE: {
@@ -126,6 +132,7 @@ WITH_ID_AND_ESTIMATE_AND_DATE: {
     ok( !$task->started, 'Not started' );
     ok(  $task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_FRACTIONAL_ESTIMATE: {
@@ -140,6 +147,7 @@ WITH_FRACTIONAL_ESTIMATE: {
     ok( !$task->started, 'Not started' );
     ok(  $task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
 }
 
 WITH_DELETION: {
@@ -156,6 +164,24 @@ WITH_DELETION: {
     ok( !$task->started, 'Not started' );
     ok( !$task->is_todo );
     ok( !$task->parent );
+    is( scalar $task->assignees, 0 );
+}
+
+WITH_ASSIGNEES: {
+    my $str = "--It's The End Of The World As We Know It (And I Feel Fine) (Slight Return)   (12.3h, Andy, #43, Dave)";
+    my $task = App::HWD::Task->parse( $str );
+    isa_ok( $task, 'App::HWD::Task' );
+    is( $task->name, "It's The End Of The World As We Know It (And I Feel Fine) (Slight Return)" );
+    is( $task->level, 2 );
+    is( $task->estimate, 12.3 );
+    is( $task->id, 43 );
+    is( $task->date_added, '' );
+    ok( $task->is_todo );
+    ok( !$task->parent );
+
+    my @who = $task->assignees;
+    is( scalar @who, 2 );
+    is_deeply( \@who, [qw( Andy Dave )] );
 }
 
 INVALID: {

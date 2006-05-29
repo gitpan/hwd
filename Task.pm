@@ -13,79 +13,11 @@ checking.
 
 =head1 FUNCTIONS
 
-=head2 App::HWD::Task->parse( $input_line, $parent_task )
-
-Returns an App::HWD::Task object from an input line
-
 =cut
 
 use warnings;
 use strict;
 use DateTime::Format::Strptime;
-
-my $line_regex = qr/
-    ^
-    (-+|\*+)    # leading dashes or stars
-    \s*         # whitespace
-    (.+)        # everything else
-    $
-/x;
-
-sub parse {
-    my $class = shift;
-    my $line = shift;
-    my $parent = shift;
-    my $where = shift;
-
-    if ( $line =~ $line_regex ) {
-        my $level = length $1;
-        my $name = $2;
-        my $id;
-        my $estimate;
-        my %date;
-
-        if ( $name =~ s/\s*\(([^)]+)\)\s*$// ) {
-            my $parens = $1;
-            my $parser = DateTime::Format::Strptime->new( pattern => '%Y-%m-%d' );
-
-            my @subfields = split /,/, $parens;
-            for ( @subfields ) {
-                # Strip whitespace
-                s/^\s+//;
-                s/\s+$//;
-
-                # ID?
-                /^#(\d+)$/ and $id = $1, next;
-
-                # Estimate in hours or minutes?
-                /^((\d*\.)?\d+)h$/  and $estimate = $1, next;
-                /^(\d+)m$/          and $estimate = $1/60, next;
-
-                # Add or delete dates
-                /^(added|deleted) (\S+)$/i and do {
-                    my ($type,$date) = ($1,$2);
-                    $date{$type} = $parser->parse_datetime($date);
-                    next if $date{$type};
-                };
-                warn qq{Can't parse $where: $_\n};
-            }
-        }
-
-        my $task = $class->new( {
-            level               => $level,
-            name                => $name,
-            id                  => $id,
-            where               => $where,
-            estimate            => $estimate,
-            date_added_obj      => $date{added},
-            date_deleted_obj    => $date{deleted},
-            parent              => $parent,
-        } );
-    }
-    else {
-        return;
-    }
-}
 
 =head2 App::HWD::Task->new( { args } )
 
@@ -111,6 +43,79 @@ sub new {
     }, $class;
 
     return $self;
+}
+
+=head2 App::HWD::Task->parse( $input_line, $parent_task )
+
+Returns an App::HWD::Task object from an input line.
+
+=cut
+
+my $line_regex = qr/
+    ^
+    (-+|\*+)    # leading dashes or stars
+    \s*         # whitespace
+    (.+)        # everything else
+    $
+/x;
+
+sub parse {
+    my $class = shift;
+    my $line = shift;
+    my $parent = shift;
+    my $where = shift;
+
+    if ( $line =~ $line_regex ) {
+        my $level = length $1;
+        my $name = $2;
+        my $id;
+        my $estimate;
+        my @assignees;
+        my %date;
+
+        if ( $name =~ s/\s*\(([^)]+)\)\s*$// ) {
+            my $parens = $1;
+            my $parser = DateTime::Format::Strptime->new( pattern => '%Y-%m-%d' );
+
+            my @subfields = split /,/, $parens;
+            for ( @subfields ) {
+                # Strip whitespace
+                s/^\s+//;
+                s/\s+$//;
+
+                # ID?
+                /^#(\d+)$/ and $id = $1, next;
+
+                # Estimate in hours or minutes?
+                /^((\d*\.)?\d+)h$/  and $estimate = $1, next;
+                /^(\d+)m$/          and $estimate = $1/60, next;
+
+                # Add or delete dates
+                /^(added|deleted) (\S+)$/i and do {
+                    my ($type,$date) = ($1,$2);
+                    $date{$type} = $parser->parse_datetime($date);
+                    next if $date{$type};
+                };
+                # Anything else, we assume it's who's going to do it
+                push( @assignees, $_ );
+            }
+        }
+
+        my $task = $class->new( {
+            level               => $level,
+            name                => $name,
+            id                  => $id,
+            where               => $where,
+            estimate            => $estimate,
+            date_added_obj      => $date{added},
+            date_deleted_obj    => $date{deleted},
+            parent              => $parent,
+            assignees           => (@assignees ? \@assignees : undef),
+        } );
+    }
+    else {
+        return;
+    }
 }
 
 =head2 $task->level()
@@ -165,6 +170,12 @@ Returns a list of child tasks.
 
 Returns the array of App::HWD::Work applied to the task.
 
+=head2 $task->assignees()
+
+Returns a list of the persons or entities assigned to do the task.
+Note that this name, or these names, may not correspond to who actually
+does the work.
+
 =cut
 
 sub level               { return shift->{level} }
@@ -178,6 +189,7 @@ sub date_added_obj      { return shift->{date_added_obj} }
 sub date_deleted_obj    { return shift->{date_added_obj} }
 sub parent              { return shift->{parent} }
 sub children            { return @{shift->{children}||[]} }
+sub assignees           { return @{shift->{assignees}||[]} }
 
 sub date_added {
     my $self = shift;
